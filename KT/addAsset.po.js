@@ -57,7 +57,8 @@ var addAssetPage = function() {
 	this.clickWebPageAsset = function(){
 		//select source from list of available
 		browser.get("https://manager-stable.knowledgetree.com/add");
-		//waits(10000);
+		//browser.waitForAngular();
+		//browser.wait();
 		element.all(by.repeater('service in services')).then(function(srv){
 			srv[0].element(by.partialLinkText('Web Page')).click();
 		});

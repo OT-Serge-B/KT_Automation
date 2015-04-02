@@ -12,9 +12,10 @@ exports.config  = {
 
     //list our tests here here
     specs: [/*'SalesForce/kt4sf.spec1.js',*/ 
-    	'KT/ktm.spec1.js'
-    	, 'KT/ktm.spec3.js'
-    	, 'KT/ktm.spec4.js'
+    	'KT/ktm.spec5.js'
+    	//, 'KT/ktm.spec3.js'
+    	//, 'KT/ktm.spec4.js'
+    	//, 'KT/ktm.spec1.js'
     	],
     //options
     jasmineNodeOpts: {

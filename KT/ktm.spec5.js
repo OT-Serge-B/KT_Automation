@@ -1,8 +1,8 @@
 describe('initial test package', function(){
 	
 	it ('automates login with username (with validation), go to assets list and and adds a url-asset (with validation),'+
-		' goes to assets list and vaidate added asset presented, then mark juat added asset as internal (with validation),'+
-		' then unmark it(with validation), then delete just added asset (with validation), then logout', function(){
+		' goes to assets list and vaidate added asset presented, then mark juat added asset with tag (with validation),'+
+		' then delete tag from asset (with validation), then delete asset(with validation), then logout', function(){
     	//get pageobj
         var curatePage = require('../KT/curate.po.js');
         //get started
@@ -27,15 +27,16 @@ describe('initial test package', function(){
 		addAssetPage.menuAssets.click();
 		curatePage.validateAssetExists(linkText, true);
 		
-		//mark asset as internal
-		curatePage.markAssetInListAsInternalByTitle(linkText);
-		//validate asset is internal
-		curatePage.validateAssetIsInternal(linkText, true);
+		var tagText = 'automationTag';
+		//mark asset with Tag
+		curatePage.addTagToAssetInListByTitle(linkText, tagText);
+		//validate asset has tag
+		curatePage.validateTagAdded(linkText);
 		
-		curatePage.unmarkAssetInListAsInternalByTitle(linkText);
-		//validate asset still exists but is not marked as Internal anymore
+		curatePage.removeTagFromAssetInListByTitle(linkText, tagText);
+		//validate asset still exists but does not have tag anymore
 		curatePage.validateAssetExists(linkText, true);
-		curatePage.validateAssetIsInternal(linkText, false);
+		curatePage.validateTagRemoved(linkText);
 		
 		//delete asset
 		curatePage.deleteAssetFromAssetsList(linkText);

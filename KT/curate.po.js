@@ -11,9 +11,17 @@ var loginKTMPage = function() {
 	//main menu items
 	this.menuAssets = element(by.linkText('Assets'));
 	
+	//message
+	this.globalMessage = element(by.id('globalMessage'));
+	
 	//assets
 	this.btnAddAsset = element(by.partialLinkText('Add'));
 	this.listAssets = element(by.css('[class="asset-list-group"]'));
+	this.btnInternal = element(by.buttonText('Internal'));
+	this.btnRemoveInternal = element(by.css('[data-kt-name="unmark-internal-btn"]'));
+	this.btnTags = element(by.buttonText('Tags'));
+	this.btnRemoveTags = element(by.css('[data-kt-name="remove-tags-btn"]'));
+	
 
 	this.drdwUserName = element(by.css('body > div.top-wrapper > div > div > div.navbar.navbar-default.ng-scope > ul.nav.navbar-nav.navbar-right.navbar-user-menu > li > a > span.navbar-username.ng-binding'));
 	this.parentWndHdlr = null;
@@ -76,8 +84,8 @@ var loginKTMPage = function() {
 		//select asset from the list
 		this.selectAssetInListByTitle(title);
 		//click Internal button above the list
-		element(by.buttonText('Internal')).click()
-			//finally - confirm removing asset in popup
+		this.btnInternal.click()
+			//finally - confirm that asset is Internal not in popup
 			.then(function(){
 				element(by.partialButtonText('Mark as Internal')).click();
 			});	
@@ -85,33 +93,65 @@ var loginKTMPage = function() {
 		this.selectAssetInListByTitle(title);	
 	}
 	
-	
-	/*this.clickAssetInListByTitle = function(title){
+	//to mark asset in the list as not Internal
+	this.unmarkAssetInListAsInternalByTitle = function(title){
 		//go to assets list
 		this.menuAssets.click();
-		var flag = false;
-		//search title in the list of assets
-		element.all(by.repeater('asset in filteredAssets'))
-			.filter(function(row){
-				return row.element(by.css('[class="content-name"]')).getText()
-					.then(function(txt){
-						return txt === title;
-					});
-				
+		//select asset from the list
+		this.selectAssetInListByTitle(title);
+		//click Remove Internal button above the list
+		this.btnRemoveInternal.click()
+			//finally - confirm removing Internal in popup
+			.then(function(){
+				element(by.partialButtonText('Remove')).click();
+			});	
+		//unmark asset from the list
+		this.selectAssetInListByTitle(title);	
+	}
+	
+	this.addTagToAssetInListByTitle = function(title, tag){
+		//go to assets list
+		this.menuAssets.click();
+		//select asset from the list
+		this.selectAssetInListByTitle(title);
+		//click Tag button above the list
+		this.btnTags.click()
+			.then(function(){
+				//enter tag name
+				element(by.css('[data-kt-name="add-tags-input-div"]')).element(by.css('[type="text"]')).sendKeys(tag);
 			})
-				.then(function(elem){
-					elem[0].element(by.css('[class="control-indicator"]')).click();
+				//finally - pick up new tag from dropdown and confirm creation new tag in popup
+				.then(function(){
+					element(by.css('.selectize-dropdown-content strong')).click();
 				})
 					.then(function(){
-						element(by.css('[data-kt-name="remove-assets-btn"]')).click();
-					})
-						.then(function(){
-							element(by.partialButtonText('Remove')).click();
-						});
-		
-	}*/
+						element(by.partialButtonText('Update')).click();
+					});	
+		//unmark asset from the list
+		this.selectAssetInListByTitle(title);	
+	}
+
 	
-	
+	this.removeTagFromAssetInListByTitle = function(title, tag){
+		//go to assets list
+		this.menuAssets.click();
+		//select asset from the list
+		this.selectAssetInListByTitle(title);
+		//click Tag button above the list
+		this.btnRemoveTags.click()
+			//enter tag name and confirm removing tag in popup
+			.then(function(){
+				element(by.css('[data-kt-name="remove-tags-input-div"]')).element(by.css('[type="text"]')).sendKeys(tag);
+			})
+				//finally - pick up tag from dropdown and confirm removing tag in popup
+				.then(function(){
+					element(by.css('.selectize-dropdown-content span')).click();
+				})
+					.then(function(){
+						element(by.partialButtonText('Update')).click();
+					});			//unmark asset from the list
+		this.selectAssetInListByTitle(title);	
+	}
 	
 	this.addNewAsset = function() {
 		//click Assets->Add
@@ -120,21 +160,30 @@ var loginKTMPage = function() {
 		browser.waitForAngular();
 		}
 	
-	this.validateAssetExists = function(title){
+	this.validateAssetExists = function(title, expected){
 		//go to assets list
 		this.menuAssets.click();
 		//validate that asset with specified title exisis
-		expect(element(by.linkText(title)).isPresent()).toBe(true);
+		expect(element(by.linkText(title)).isPresent()).toBe(expected);
 	}
 	
-	this.validateAssetNotExist = function(title){
-		//go to assets list
-		this.menuAssets.click();
-		//validate that asset with specified title exisis
-		expect(element(by.linkText(title)).isPresent()).toBe(false);
+	this.validateTagAdded = function(title){
+		//validate that message appears
+		this.globalMessage.element(by.css('.alert.alert-dismissable.ng-scope.alert-success span')).getText()
+			.then(function(messageText){
+				expect(messageText).toContain("Successfully added tags for "+title);
+			});
 	}
 	
-	this.validateAssetIsInternal = function(title){
+	this.validateTagRemoved = function(title){
+		//validate that message appears
+		this.globalMessage.element(by.css('.alert.alert-dismissable.ng-scope.alert-success span')).getText()
+			.then(function(messageText){
+				expect(messageText).toContain("Successfully removed tags from " + title);
+			});
+	}
+	
+	this.validateAssetIsInternal = function(title, expected){
 		//go to assets list
 		this.menuAssets.click();
 		//search title in the list of assets
@@ -147,12 +196,9 @@ var loginKTMPage = function() {
 				
 			})
 				.then(function(elem){
-					expect(elem[0].element(by.css('[data-kt-name="asset-is-internal"]')).isPresent()).toBe(true);
+					expect(elem[0].element(by.css('[data-kt-name="asset-is-internal"]')).isPresent()).toBe(expected);
 				});
 	}
-	
-	
-	
 	
 	this.getLandingPage = function() {
 		browser.get("https://manager-stable.knowledgetree.com");

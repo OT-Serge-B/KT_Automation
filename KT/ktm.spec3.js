@@ -25,12 +25,12 @@ describe('initial test package', function(){
 		expect(element(by.linkText(linkText)).isPresent()).toBe(true);
 		//3.go and validate that asset appears in the list on curate
 		addAssetPage.menuAssets.click();
-		curatePage.validateAssetExists(linkText);
+		curatePage.validateAssetExists(linkText, true);
 		
 		//delete asset
 		curatePage.deleteAssetFromAssetsList(linkText);
 		//validate asset deleted properly
-		curatePage.validateAssetNotExist(linkText);
+		curatePage.validateAssetExists(linkText, false);
 		//logout
 		curatePage.ktLogOut();
 	});
